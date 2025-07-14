@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Psicólogo IA</title>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white shadow-lg rounded-lg p-6 max-w-xl w-full flex flex-col" x-data="{ loading: false }">
+        <div class="flex justify-between mb-4 items-center">
+            <h1 class="text-2xl font-bold text-blue-700">Psicólogo Virtual</h1>
+            <a href="/new"
+               class="inline-flex items-center space-x-1 px-3 py-1.5 bg-blue-500 text-white text-sm font-medium rounded-full shadow hover:bg-blue-600 transition">
+                <span>Novo Chat</span>
+            </a>
+        </div>        
+
+        <div id="chat-container" class="flex-1 space-y-2 overflow-y-auto pr-2 max-h-96 mb-4">
+            {% for msg in historico %}
+            {% if msg.role == "user" %}
+            <div class="flex justify-end items-end space-x-2">
+                <div class="text-xs text-gray-500">{{ msg.timestamp }}</div>
+                <div class="bg-blue-500 text-white p-2 rounded-lg max-w-xs text-right">
+                    {{ msg.mensagem }}
+                </div>
+                <img src="https://cdn-icons-png.flaticon.com/512/147/147144.png" alt="Você"
+                    class="w-8 h-8 rounded-full">
+            </div>
+            {% else %}
+            <div class="flex justify-start items-end space-x-2">
+                <img src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png" alt="IA"
+                    class="w-8 h-8 rounded-full">
+                <div class="bg-gray-200 text-black p-2 rounded-lg max-w-xs text-left opacity-0 transition-opacity duration-500"
+                    x-data x-init="setTimeout(() => {
+                    $el.classList.remove('opacity-0');
+                    $el.querySelector('.typing')?.remove();
+                }, 1000)">
+                    <span x-data x-init="setTimeout(() => $el.remove(), 1000)" class="typing inline-flex space-x-1">
+                        <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                            style="animation-delay: 0s;"></span>
+                        <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                            style="animation-delay: 0.2s;"></span>
+                        <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce"
+                            style="animation-delay: 0.4s;"></span>
+                    </span>
+                    {{ msg.mensagem }}
+                </div>
+                <div class="text-xs text-gray-500">{{ msg.timestamp }}</div>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+
+        <form method="post" class="flex space-x-2 mt-auto" @submit="loading = true">
+            <textarea name="mensagem" rows="1" class="border rounded p-2 flex-1 resize-none"
+                placeholder="Digite sua mensagem..." required></textarea>
+            <button type="submit"
+                class="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 flex items-center justify-center space-x-2">
+                <span x-show="!loading">Enviar</span>
+                <svg x-show="loading" class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg"
+                    fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z">
+                    </path>
+                </svg>
+            </button>
+        </form>
+    </div>
+
+    <style>
+        .animate-bounce {
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-0.25rem);
+            }
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const chatContainer = document.getElementById('chat-container');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        });
+    </script>
+
+</body>
+
+</html>
