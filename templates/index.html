@@ -8,9 +8,10 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-2">
-    <div class="bg-white shadow-lg rounded-lg p-4 sm:p-6 w-full max-w-md flex flex-col" x-data="{ loading: false }">
-        <div class="flex justify-between mb-4 items-center">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-0 sm:p-2">
+    <div class="bg-white shadow-lg rounded-none sm:rounded-lg sm:p-6 w-full max-w-md flex flex-col min-h-screen sm:min-h-0"
+        x-data="{ loading: false }">
+        <div class="flex justify-between mb-2 sm:mb-4 items-center p-2 sm:p-0">
             <h1 class="text-lg sm:text-2xl font-bold text-blue-700">Psicólogo Virtual</h1>
             <a href="/new"
                 class="inline-flex items-center space-x-1 px-2 sm:px-3 py-1.5 bg-blue-500 text-white text-xs sm:text-sm font-medium rounded-full shadow hover:bg-blue-600 transition">
@@ -23,7 +24,7 @@
             </a>
         </div>
 
-        <div id="chat-container" class="flex-1 space-y-2 overflow-y-auto pr-1 max-h-96 mb-4">
+        <div id="chat-container" class="flex-1 space-y-2 overflow-y-auto pr-1 max-h-[70vh] mb-2 sm:mb-4 px-2 sm:px-0">
             {% for msg in historico %}
             {% if msg.role == "user" %}
             <div class="flex justify-end items-end space-x-1 sm:space-x-2">
@@ -59,7 +60,7 @@
             {% endfor %}
         </div>
 
-        <form method="post" class="flex space-x-1 sm:space-x-2 mt-auto" @submit="loading = true">
+        <form method="post" class="flex space-x-1 sm:space-x-2 mt-auto p-2 sm:p-0" @submit="loading = true">
             <textarea name="mensagem" rows="1" class="border rounded p-2 flex-1 resize-none text-sm sm:text-base"
                 placeholder="Digite sua mensagem..." required></textarea>
             <button type="submit"
