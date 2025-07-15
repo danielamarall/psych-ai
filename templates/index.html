@@ -13,7 +13,7 @@
 <div class="bg-white shadow-lg rounded-lg w-full max-w-md flex flex-col h-[95vh]" x-data="{ loading: false }">
 
     <!-- Header fixo -->
-    <header class="flex justify-between items-center p-4 border-b">
+    <header class="flex-none flex justify-between items-center p-4 border-b">
         <h1 class="text-lg sm:text-xl font-bold text-blue-700">Psicólogo Virtual</h1>
         <a href="/new"
             class="inline-flex items-center space-x-1 px-3 py-1.5 bg-blue-500 text-white text-xs sm:text-sm font-medium rounded-full shadow hover:bg-blue-600 transition">
@@ -27,7 +27,7 @@
     </header>
 
     <!-- Histórico (rolável) -->
-    <main id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-2">
+    <main class="flex-1 overflow-y-auto p-4 space-y-2">
         {% for msg in historico %}
         {% if msg.role == "user" %}
         <div class="flex justify-end items-end space-x-1">
@@ -60,7 +60,7 @@
     </main>
 
     <!-- Footer fixo -->
-    <footer class="border-t p-3">
+    <footer class="flex-none border-t p-3">
         <form method="post" class="flex space-x-1" @submit="loading = true">
             <textarea name="mensagem" rows="2"
                 class="border rounded p-2 flex-1 resize-none text-sm"
@@ -80,4 +80,5 @@
 
 </div>
 </body>
+
 </html>
