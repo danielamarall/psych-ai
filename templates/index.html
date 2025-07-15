@@ -1,84 +1,197 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Psicólogo IA</title>
-<script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
-<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Psicólogo IA & Testes</title>
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
+<body class="h-screen flex bg-gray-100" x-data="app()">
 
-<body class="bg-gray-100 min-h-screen flex justify-center items-center p-2">
-<div class="bg-white shadow-lg rounded-lg w-full max-w-md flex flex-col h-[95vh]" x-data="{ loading: false }">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white shadow-lg flex-shrink-0">
+    <div class="p-4 border-b">
+      <h2 class="text-xl font-bold text-blue-700">Menu</h2>
+    </div>
+    <nav class="p-4 space-y-2">
+      <button @click="setTab('chat')"
+        :class="activeTab==='chat'? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'"
+        class="w-full text-left px-3 py-2 rounded flex items-center space-x-2">
+        <span>Psicólogo</span>
+      </button>
+      <button @click="setTab('tdah')"
+        :class="activeTab==='tdah'? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'"
+        class="w-full text-left px-3 py-2 rounded">
+        Teste de TDAH
+      </button>
+      <button @click="setTab('autismo')"
+        :class="activeTab==='autismo'? 'bg-blue-100 text-blue-700' : 'hover:bg-gray-100'"
+        class="w-full text-left px-3 py-2 rounded">
+        Teste de Autismo
+      </button>
+    </nav>
+  </aside>
 
-    <!-- Header fixo -->
-    <header class="flex-none flex justify-between items-center p-4 border-b">
-        <h1 class="text-lg sm:text-xl font-bold text-blue-700">Psicólogo Virtual</h1>
-        <a href="/new"
-            class="inline-flex items-center space-x-1 px-3 py-1.5 bg-blue-500 text-white text-xs sm:text-sm font-medium rounded-full shadow hover:bg-blue-600 transition">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M4 4v6h6M20 20v-6h-6M4 20l16-16" />
-            </svg>
-            <span>Novo Chat</span>
-        </a>
-    </header>
+  <!-- Conteúdo -->
+  <div class="flex-1 flex flex-col">
 
-    <!-- Histórico (rolável) -->
-    <main class="flex-1 overflow-y-auto p-4 space-y-2">
-        {% for msg in historico %}
-        {% if msg.role == "user" %}
-        <div class="flex justify-end items-end space-x-1">
-            <div class="text-[10px] text-gray-500">{{ msg.timestamp }}</div>
-            <div class="bg-blue-500 text-white p-2 rounded-lg max-w-[80%] text-right text-sm">
-                {{ msg.mensagem }}
+    <!-- Chat -->
+    <section x-show="activeTab==='chat'" class="flex-1 flex flex-col">
+      <div class="bg-white shadow rounded-lg flex flex-col flex-1">
+        <!-- header -->
+        <header class="flex-none flex justify-between items-center px-4 py-2 border-b">
+          <h3 class="font-semibold">Psicólogo Virtual</h3>
+          <a href="/new" class="text-sm text-blue-600 hover:underline">Novo Chat</a>
+        </header>
+        <!-- histórico (rolável) -->
+        <main id="chat-container" class="flex-1 overflow-y-auto p-4 space-y-2 bg-gray-50">
+          {% for msg in historico %}
+            {% if msg.role == 'user' %}
+              <div class="flex justify-end">
+                <div class="text-xs text-gray-500 mr-2">{{ msg.timestamp }}</div>
+                <div class="bg-blue-500 text-white p-2 rounded-lg max-w-[80%]">{{ msg.mensagem }}</div>
+              </div>
+            {% else %}
+              <div class="flex justify-start">
+                <div class="bg-gray-200 text-black p-2 rounded-lg max-w-[80%]">{{ msg.mensagem }}</div>
+                <div class="text-xs text-gray-500 ml-2">{{ msg.timestamp }}</div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </main>
+        <!-- footer -->
+        <footer class="flex-none border-t p-4 bg-white">
+          <form method="post" class="flex space-x-2" @submit="loading=true">
+            <textarea name="mensagem" rows="2" class="flex-1 border rounded p-2" placeholder="Digite sua mensagem…" required></textarea>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Enviar</button>
+          </form>
+        </footer>
+      </div>
+    </section>
+
+    <!-- Teste de TDAH -->
+    <section x-show="activeTab==='tdah'" class="flex-1 flex flex-col">
+      <main class="flex-1 overflow-y-auto p-6">
+        <template x-if="!tests.tdah.completed">
+          <div class="space-y-4">
+            <h3 class="font-semibold text-lg">Pergunta <span x-text="tests.tdah.current+1"></span> de <span x-text="tests.tdah.questions.length"></span></h3>
+            <p x-text="tests.tdah.questions[tests.tdah.current].q"></p>
+            <div class="space-y-2">
+              <template x-for="(opt,i) in tests.tdah.questions[tests.tdah.current].options" :key="i">
+                <label class="flex items-center space-x-2">
+                  <input type="radio" :name="`tdah-${tests.tdah.current}`" :value="i"
+                    x-model="tests.tdah.answers[tests.tdah.current]" />
+                  <span x-text="opt"></span>
+                </label>
+              </template>
             </div>
-            <img src="https://cdn-icons-png.flaticon.com/512/147/147144.png" alt="Você" class="w-6 h-6 rounded-full">
-        </div>
-        {% else %}
-        <div class="flex justify-start items-end space-x-1">
-            <img src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png" alt="IA" class="w-6 h-6 rounded-full">
-            <div
-                class="bg-gray-200 text-black p-2 rounded-lg max-w-[80%] text-left text-sm opacity-0 transition-opacity duration-500"
-                x-data x-init="setTimeout(() => {
-                        $el.classList.remove('opacity-0');
-                        $el.querySelector('.typing')?.remove();
-                    }, 1000)">
-                <span x-data x-init="setTimeout(() => $el.remove(), 1000)" class="typing inline-flex space-x-1">
-                    <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0s;"></span>
-                    <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.2s;"></span>
-                    <span class="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style="animation-delay: 0.4s;"></span>
-                </span>
-                {{ msg.mensagem }}
-            </div>
-            <div class="text-[10px] text-gray-500">{{ msg.timestamp }}</div>
-        </div>
-        {% endif %}
-        {% endfor %}
-    </main>
-
-    <!-- Footer fixo -->
-    <footer class="flex-none border-t p-3">
-        <form method="post" class="flex space-x-1" @submit="loading = true">
-            <textarea name="mensagem" rows="2"
-                class="border rounded p-2 flex-1 resize-none text-sm"
-                placeholder="Digite sua mensagem..." required></textarea>
-            <button type="submit"
-                class="bg-blue-600 text-white py-2 px-3 rounded hover:bg-blue-700 flex items-center justify-center space-x-1 text-sm">
-                <span x-show="!loading">Enviar</span>
-                <svg x-show="loading" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
-                    fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                </svg>
+            <button class="bg-blue-600 text-white px-4 py-2 rounded" @click="next('tdah')" :disabled="tests.tdah.answers[tests.tdah.current]===undefined">
+              Próxima
             </button>
-        </form>
-    </footer>
+          </div>
+        </template>
+        <template x-if="tests.tdah.completed">
+          <div class="space-y-4">
+            <h3 class="font-semibold text-lg">Resultado do Teste de TDAH</h3>
+            <p x-text="tests.tdah.resultText"></p>
+            <p class="mt-4 text-sm text-gray-600">Este teste não substitui avaliação profissional. Consulte um especialista.</p>
+          </div>
+        </template>
+      </main>
+    </section>
 
-</div>
+    <!-- Teste de Autismo -->
+    <section x-show="activeTab==='autismo'" class="flex-1 flex flex-col">
+      <main class="flex-1 overflow-y-auto p-6">
+        <template x-if="!tests.autismo.completed">
+          <div class="space-y-4">
+            <h3 class="font-semibold text-lg">Pergunta <span x-text="tests.autismo.current+1"></span> de <span x-text="tests.autismo.questions.length"></span></h3>
+            <p x-text="tests.autismo.questions[tests.autismo.current].q"></p>
+            <div class="space-y-2">
+              <template x-for="(opt,i) in tests.autismo.questions[tests.autismo.current].options" :key="i">
+                <label class="flex items-center space-x-2">
+                  <input type="radio" :name="`autismo-${tests.autismo.current}`" :value="i"
+                    x-model="tests.autismo.answers[tests.autismo.current]" />
+                  <span x-text="opt"></span>
+                </label>
+              </template>
+            </div>
+            <button class="bg-blue-600 text-white px-4 py-2 rounded" @click="next('autismo')" :disabled="tests.autismo.answers[tests.autismo.current]===undefined">
+              Próxima
+            </button>
+          </div>
+        </template>
+        <template x-if="tests.autismo.completed">
+          <div class="space-y-4">
+            <h3 class="font-semibold text-lg">Resultado do Teste de Autismo</h3>
+            <p x-text="tests.autismo.resultText"></p>
+            <p class="mt-4 text-sm text-gray-600">Este teste não substitui avaliação profissional. Consulte um especialista.</p>
+          </div>
+        </template>
+      </main>
+    </section>
+
+  </div>
+
+  <script>
+    function app() {
+      return {
+        activeTab: 'chat',
+        loading: false,
+        setTab(tab) { this.activeTab = tab; },
+        tests: {
+          tdah: {
+            current: 0,
+            answers: [],
+            completed: false,
+            questions: [
+              { q: 'Você tem dificuldade para manter a atenção em tarefas longas?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] },
+              { q: 'Você se sente inquieto ou agitado?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] },
+              { q: 'Você interrompe os outros durante conversas?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] },
+              { q: 'Você perde ou esquece objetos frequentemente?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] },
+              { q: 'Você se distrai facilmente com estímulos externos?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] },
+              { q: 'Você costuma procrastinar atividades importantes?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] }
+            ],
+            get resultText() {
+              const score = this.answers.reduce((s,a)=>s+a,0);
+              const max = (this.questions.length)*3;
+              const pct = (score/max)*100;
+              return pct>=50
+                ? 'Padrão indica possivelmente traços de TDAH. Procure um especialista.'
+                : 'Poucos indícios de TDAH. Se tiver dúvidas, consulte um profissional.';
+            }
+          },
+          autismo: {
+            current: 0,
+            answers: [],
+            completed: false,
+            questions: [
+              { q: 'Você evita contato visual com frequência?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] },
+              { q: 'Você tem dificuldade em entender expressões faciais?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] },
+              { q: 'Você prefere rotinas rígidas?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] },
+              { q: 'Você demonstra interesses intensos em tópicos específicos?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] },
+              { q: 'Você tem dificuldade em interpretar sarcasmo ou humor?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] },
+              { q: 'Você se sente desconfortável em grandes grupos sociais?', options: ['Nunca','Às vezes','Frequentemente','Quase sempre'] }
+            ],
+            get resultText() {
+              const score = this.answers.reduce((s,a)=>s+a,0);
+              const max = (this.questions.length)*3;
+              const pct = (score/max)*100;
+              return pct>=50
+                ? 'Padrão indica possivelmente traços do espectro autista. Consulte um profissional.'
+                : 'Poucos indícios de Autismo. Se tiver dúvidas, consulte um profissional.';
+            }
+          }
+        },
+        next(test) {
+          const t = this.tests[test];
+          if (t.current < t.questions.length - 1) t.current++;
+          else t.completed = true;
+        }
+      }
+    }
+  </script>
+
 </body>
-
 </html>

@@ -7,10 +7,8 @@ import os
 import uuid
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, String, Integer
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 from datetime import datetime
-from fastapi.responses import RedirectResponse
 
 load_dotenv()
 
@@ -18,17 +16,18 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Banco de dados
-Base = declarative_base()
-engine = create_engine("sqlite:///db.sqlite3")
-SessionLocal = sessionmaker(bind=engine)
-
+# Gera nova sessão
 @app.get("/new")
 async def new_chat():
     session_id = str(uuid.uuid4())
     response = RedirectResponse("/")
     response.set_cookie(key="session_id", value=session_id)
     return response
+
+# Banco de dados
+Base = declarative_base()
+engine = create_engine("sqlite:///db.sqlite3")
+SessionLocal = sessionmaker(bind=engine)
 
 class LogMensagem(Base):
     __tablename__ = "logs"
@@ -61,25 +60,23 @@ def detectar_crise(mensagem: str) -> bool:
 async def home(request: Request, session_id: str = Cookie(default=None)):
     if not session_id:
         session_id = str(uuid.uuid4())
-        response = RedirectResponse("/")
-        response.set_cookie(key="session_id", value=session_id)
-        return response
+        resp = RedirectResponse("/")
+        resp.set_cookie("session_id", session_id)
+        return resp
 
     db = SessionLocal()
     historico = db.query(LogMensagem).filter_by(session_id=session_id).all()
     db.close()
     return templates.TemplateResponse("index.html", {
         "request": request,
-        "mensagem_bot": None,
         "historico": historico
     })
 
 @app.post("/", response_class=HTMLResponse)
 async def conversar(request: Request, mensagem: str = Form(...), session_id: str = Cookie(...)):
     db = SessionLocal()
-    timestamp_now = datetime.now().strftime('%H:%M')
-
-    db.add(LogMensagem(session_id=session_id, role="user", mensagem=mensagem, timestamp=timestamp_now))
+    agora = datetime.now().strftime("%H:%M")
+    db.add(LogMensagem(session_id=session_id, role="user", mensagem=mensagem, timestamp=agora))
     db.commit()
 
     if detectar_crise(mensagem):
@@ -91,23 +88,22 @@ async def conversar(request: Request, mensagem: str = Form(...), session_id: str
     else:
         prompt = PROMPT_BASE.format(mensagem=mensagem)
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
         completion = client.chat.completions.create(
             model="gpt-4o",
-            messages=[
-                {"role": "system", "content": prompt}
-            ]
+            messages=[{"role": "system", "content": prompt}]
         )
-
         resposta = completion.choices[0].message.content.strip()
 
-    db.add(LogMensagem(session_id=session_id, role="bot", mensagem=resposta, timestamp=datetime.now().strftime('%H:%M')))
+    db.add(LogMensagem(session_id=session_id, role="bot", mensagem=resposta, timestamp=datetime.now().strftime("%H:%M")))
     db.commit()
     historico = db.query(LogMensagem).filter_by(session_id=session_id).all()
     db.close()
 
     return templates.TemplateResponse("index.html", {
         "request": request,
-        "mensagem_bot": resposta,
         "historico": historico
     })
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
