@@ -2,19 +2,18 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Psicólogo IA</title>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center p-0 sm:p-2">
-    <div class="bg-white shadow-lg rounded-none sm:rounded-lg sm:p-6 w-full max-w-md flex flex-col min-h-screen sm:min-h-0"
-        x-data="{ loading: false }">
-        <div class="flex justify-between mb-2 sm:mb-4 items-center p-2 sm:p-0">
-            <h1 class="text-lg sm:text-2xl font-bold text-blue-700">Psicólogo Virtual</h1>
+<body class="bg-gray-100 min-h-screen flex justify-center items-center p-2">
+    <div class="bg-white shadow-lg rounded-lg w-full max-w-md flex flex-col h-[90vh] p-4" x-data="{ loading: false }">
+        <div class="flex justify-between mb-4 items-center">
+            <h1 class="text-lg sm:text-xl font-bold text-blue-700">Psicólogo Virtual</h1>
             <a href="/new"
-                class="inline-flex items-center space-x-1 px-2 sm:px-3 py-1.5 bg-blue-500 text-white text-xs sm:text-sm font-medium rounded-full shadow hover:bg-blue-600 transition">
+                class="inline-flex items-center space-x-1 px-3 py-1.5 bg-blue-500 text-white text-xs sm:text-sm font-medium rounded-full shadow hover:bg-blue-600 transition">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -24,22 +23,22 @@
             </a>
         </div>
 
-        <div id="chat-container" class="flex-1 space-y-2 overflow-y-auto pr-1 max-h-[70vh] mb-2 sm:mb-4 px-2 sm:px-0">
+        <div id="chat-container" class="flex-1 space-y-2 overflow-y-auto pr-1 mb-2">
             {% for msg in historico %}
             {% if msg.role == "user" %}
-            <div class="flex justify-end items-end space-x-1 sm:space-x-2">
-                <div class="text-[10px] sm:text-xs text-gray-500">{{ msg.timestamp }}</div>
-                <div class="bg-blue-500 text-white p-2 rounded-lg max-w-[80%] text-right text-sm sm:text-base">
+            <div class="flex justify-end items-end space-x-1">
+                <div class="text-[10px] text-gray-500">{{ msg.timestamp }}</div>
+                <div class="bg-blue-500 text-white p-2 rounded-lg max-w-[80%] text-right text-sm">
                     {{ msg.mensagem }}
                 </div>
                 <img src="https://cdn-icons-png.flaticon.com/512/147/147144.png" alt="Você"
-                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-full">
+                    class="w-6 h-6 rounded-full">
             </div>
             {% else %}
-            <div class="flex justify-start items-end space-x-1 sm:space-x-2">
+            <div class="flex justify-start items-end space-x-1">
                 <img src="https://cdn-icons-png.flaticon.com/512/4712/4712027.png" alt="IA"
-                    class="w-6 h-6 sm:w-8 sm:h-8 rounded-full">
-                <div class="bg-gray-200 text-black p-2 rounded-lg max-w-[80%] text-left text-sm sm:text-base opacity-0 transition-opacity duration-500"
+                    class="w-6 h-6 rounded-full">
+                <div class="bg-gray-200 text-black p-2 rounded-lg max-w-[80%] text-left text-sm opacity-0 transition-opacity duration-500"
                     x-data x-init="setTimeout(() => {
                         $el.classList.remove('opacity-0');
                         $el.querySelector('.typing')?.remove();
@@ -54,17 +53,17 @@
                     </span>
                     {{ msg.mensagem }}
                 </div>
-                <div class="text-[10px] sm:text-xs text-gray-500">{{ msg.timestamp }}</div>
+                <div class="text-[10px] text-gray-500">{{ msg.timestamp }}</div>
             </div>
             {% endif %}
             {% endfor %}
         </div>
 
-        <form method="post" class="flex space-x-1 sm:space-x-2 mt-auto p-2 sm:p-0" @submit="loading = true">
-            <textarea name="mensagem" rows="1" class="border rounded p-2 flex-1 resize-none text-sm sm:text-base"
+        <form method="post" class="flex space-x-1 mt-2" @submit="loading = true">
+            <textarea name="mensagem" rows="1" class="border rounded p-2 flex-1 resize-none text-sm"
                 placeholder="Digite sua mensagem..." required></textarea>
             <button type="submit"
-                class="bg-blue-600 text-white py-2 px-3 sm:px-4 rounded hover:bg-blue-700 flex items-center justify-center space-x-1 text-sm sm:text-base">
+                class="bg-blue-600 text-white py-2 px-3 rounded hover:bg-blue-700 flex items-center justify-center space-x-1 text-sm">
                 <span x-show="!loading">Enviar</span>
                 <svg x-show="loading" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
                     fill="none" viewBox="0 0 24 24">
