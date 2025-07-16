@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR" x-cloak>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Psicólogo IA & Testes</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Psicólogo & Testes</title>
   <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet"/>
 </head>
 <body class="h-screen flex bg-gray-100 overflow-hidden" x-data="app">
 
@@ -15,21 +15,15 @@
       <h2 class="text-xl font-bold text-blue-700">Menu</h2>
     </div>
     <nav class="p-4 space-y-2 flex-1">
-      <button @click="setTab('chat')" :class="activeTab==='chat'? activeClass : btnClass">
-        Psicólogo
-      </button>
-      <button @click="setTab('tdah')" :class="activeTab==='tdah'? activeClass : btnClass">
-        Teste de TDAH
-      </button>
-      <button @click="setTab('autismo')" :class="activeTab==='autismo'? activeClass : btnClass">
-        Teste de Autismo
-      </button>
+      <button @click="setTab('chat')" :class="activeTab==='chat'? activeClass : btnClass">Psicólogo</button>
+      <button @click="setTab('tdah')" :class="activeTab==='tdah'? activeClass : btnClass">Teste de TDAH</button>
+      <button @click="setTab('autismo')" :class="activeTab==='autismo'? activeClass : btnClass">Teste de Autismo</button>
     </nav>
   </aside>
 
   <!-- Mobile menu overlay -->
   <div x-show="mobileMenu" class="fixed inset-0 z-50 flex">
-    <aside class="w-64 bg-white shadow-lg flex flex-col">
+    <aside class="w-64 bg-white shadow-lg">
       <div class="p-4 border-b flex items-center justify-between">
         <h2 class="text-xl font-bold text-blue-700">Menu</h2>
         <button @click="mobileMenu=false">
@@ -39,15 +33,9 @@
         </button>
       </div>
       <nav class="p-4 space-y-2">
-        <button @click="setTab('chat'); mobileMenu=false" :class="activeTab==='chat'? activeClass : btnClass">
-          Psicólogo
-        </button>
-        <button @click="setTab('tdah'); mobileMenu=false" :class="activeTab==='tdah'? activeClass : btnClass">
-          Teste de TDAH
-        </button>
-        <button @click="setTab('autismo'); mobileMenu=false" :class="activeTab==='autismo'? activeClass : btnClass">
-          Teste de Autismo
-        </button>
+        <button @click="setTab('chat'); mobileMenu=false" :class="activeTab==='chat'? activeClass : btnClass">Psicólogo</button>
+        <button @click="setTab('tdah'); mobileMenu=false" :class="activeTab==='tdah'? activeClass : btnClass">Teste de TDAH</button>
+        <button @click="setTab('autismo'); mobileMenu=false" :class="activeTab==='autismo'? activeClass : btnClass">Teste de Autismo</button>
       </nav>
     </aside>
     <div class="flex-1" @click="mobileMenu=false"></div>
@@ -68,43 +56,39 @@
     </header>
 
     <!-- Sections container -->
-    <div class="flex-1 flex flex-col sm:ml-0 mt-0 sm:mt-0">
+    <div class="flex-1 flex flex-col">
+
       <!-- CHAT -->
-      <section x-show="activeTab==='chat'" class="flex-1 flex flex-col mx-2 sm:mx-4 mt-0 sm:mt-0" x-cloak>
+      <section x-show="activeTab==='chat'" class="flex-1 flex flex-col mx-2 sm:mx-4" x-cloak>
         <div class="bg-white shadow rounded-lg flex flex-col flex-1 overflow-hidden">
 
-          <!-- header -->
-          <header class="flex-none flex justify-between items-center px-4 py-2 border-b bg-white z-0">
+          <!-- Chat header -->
+          <header class="flex-none flex justify-between items-center px-4 py-2 border-b bg-white">
             <h3 class="font-semibold text-sm sm:text-base">Psicólogo Virtual</h3>
             <a href="/new" class="text-sm text-blue-600 hover:underline">Novo Chat</a>
           </header>
 
-          <!-- histórico rolável -->
+          <!-- Chat history -->
           <main id="chat-container" class="flex-1 overflow-y-auto p-2 sm:p-4 space-y-3 bg-gray-50">
             <template x-for="(m,i) in chat" :key="i">
-              <div :class="m.role==='user'? 'flex justify-end items-end' : 'flex justify-start items-end'">
-                <img x-show="m.role==='bot'" :src="botAvatar" class="w-6 h-6 sm:w-8 sm:h-8 rounded-full mr-2">
+              <div :class="m.role==='user' ? 'flex justify-end items-end' : 'flex justify-start items-end'">
                 <div class="flex flex-col max-w-full">
                   <div x-show="m.typing" class="inline-flex space-x-1 mb-1">
                     <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
                     <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-200"></span>
                     <span class="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-400"></span>
                   </div>
-                  <div x-text="m.text" :class="m.role==='user'? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'"
-                       class="p-2 sm:p-3 rounded-lg break-words text-xs sm:text-sm">
-                  </div>
+                  <div x-text="m.text" :class="m.role==='user' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800'" class="p-2 sm:p-3 rounded-lg break-words text-xs sm:text-sm"></div>
                   <span x-text="m.timestamp" class="text-[8px] sm:text-xs text-gray-500 self-end mt-0.5"></span>
                 </div>
-                <img x-show="m.role==='user'" :src="userAvatar" class="w-6 h-6 sm:w-8 sm:h-8 rounded-full ml-2">
               </div>
             </template>
           </main>
 
-          <!-- footer -->
+          <!-- Chat footer -->
           <footer class="flex-none border-t p-2 sm:p-4 bg-white">
             <form @submit.prevent="sendMessage" class="flex space-x-1 sm:space-x-2">
-              <textarea x-model="input" rows="2" class="flex-1 border rounded p-2 text-xs sm:text-sm"
-                        placeholder="Digite sua mensagem…" required></textarea>
+              <textarea x-model="input" rows="2" class="flex-1 border rounded p-2 text-xs sm:text-sm" placeholder="Digite sua mensagem…" required></textarea>
               <button :disabled="loading" class="bg-blue-600 text-white px-3 py-1.5 sm:px-4 sm:py-2 rounded text-xs sm:text-sm disabled:opacity-50">
                 <span x-show="!loading">Enviar</span>
                 <svg x-show="loading" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
@@ -123,8 +107,7 @@
         <div class="bg-white shadow rounded-lg p-4 sm:p-6 space-y-4">
           <h3 class="text-base sm:text-lg font-semibold">Teste de TDAH</h3>
           <div class="w-full bg-gray-200 h-1 sm:h-2 rounded overflow-hidden">
-            <div :style="`width:${((tests.tdah.current)/tests.tdah.questions.length)*100}%`"
-                 class="h-1 sm:h-2 bg-blue-500 transition-all duration-300"></div>
+            <div :style="`width:${(tests.tdah.current/tests.tdah.questions.length)*100}%`" class="h-1 sm:h-2 bg-blue-500 transition-all duration-300"></div>
           </div>
 
           <template x-if="!tests.tdah.completed">
@@ -132,18 +115,10 @@
               <p class="font-medium text-sm sm:text-base" x-text="tests.tdah.questions[tests.tdah.current].q"></p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <template x-for="(opt,i) in tests.tdah.questions[tests.tdah.current].options" :key="i">
-                  <button @click="tests.tdah.answers[tests.tdah.current]=i"
-                    :class="tests.tdah.answers[tests.tdah.current]===i
-                      ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'"
-                    class="p-3 rounded-lg text-xs sm:text-sm text-left hover:ring-2 hover:ring-blue-300 transition">
-                    <span x-text="opt"></span>
-                  </button>
+                  <button @click="tests.tdah.answers[tests.tdah.current] = i" :class="tests.tdah.answers[tests.tdah.current]===i ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-800'" class="p-3 rounded-lg text-xs sm:text-sm text-left hover:ring-2 hover:ring-blue-300 transition"><span x-text="opt"></span></button>
                 </template>
               </div>
-              <button @click="next('tdah')" :disabled="tests.tdah.answers[tests.tdah.current]===null"
-                class="bg-blue-600 text-white w-full py-2 rounded text-sm disabled:opacity-50">
-                Próxima
-              </button>
+              <button @click="next('tdah')" :disabled="tests.tdah.answers[tests.tdah.current]===null" class="bg-blue-600 text-white w-full py-2 rounded text-sm disabled:opacity-50">Próxima</button>
             </div>
           </template>
 
@@ -162,8 +137,7 @@
         <div class="bg-white shadow rounded-lg p-4 sm:p-6 space-y-4">
           <h3 class="text-base sm:text-lg font-semibold">Teste de Autismo</h3>
           <div class="w-full bg-gray-200 h-1 sm:h-2 rounded overflow-hidden">
-            <div :style="`width:${((tests.autismo.current)/tests.autismo.questions.length)*100}%`"
-                 class="h-1 sm:h-2 bg-green-500 transition-all duration-300"></div>
+            <div :style="`width:${(tests.autismo.current/tests.autismo.questions.length)*100}%`" class="h-1 sm:h-2 bg-green-500 transition-all duration-300"></div>
           </div>
 
           <template x-if="!tests.autismo.completed">
@@ -171,18 +145,10 @@
               <p class="font-medium text-sm sm:text-base" x-text="tests.autismo.questions[tests.autismo.current].q"></p>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <template x-for="(opt,i) in tests.autismo.questions[tests.autismo.current].options" :key="i">
-                  <button @click="tests.autismo.answers[tests.autismo.current]=i"
-                    :class="tests.autismo.answers[tests.autismo.current]===i
-                      ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-800'"
-                    class="p-3 rounded-lg text-xs sm:text-sm text-left hover:ring-2 hover:ring-green-300 transition">
-                    <span x-text="opt"></span>
-                  </button>
+                  <button @click="tests.autismo.answers[tests.autismo.current] = i" :class="tests.autismo.answers[tests.autismo.current]===i ? 'bg-green-500 text-white' : 'bg-gray-100 text-gray-800'" class="p-3 rounded-lg text-xs sm:text-sm text-left hover:ring-2 hover:ring-green-300 transition"><span x-text="opt"></span></button>
                 </template>
               </div>
-              <button @click="next('autismo')" :disabled="tests.autismo.answers[tests.autismo.current]===null"
-                class="bg-green-600 text-white w-full py-2 rounded text-sm disabled:opacity-50">
-                Próxima
-              </button>
+              <button @click="next('autismo')" :disabled="tests.autismo.answers[tests.autismo.current]===null" class="bg-green-600 text-white w-full py-2 rounded text-sm disabled:opacity-50">Próxima</button>
             </div>
           </template>
 
@@ -206,60 +172,65 @@
         mobileMenu: false,
         btnClass: 'w-full px-3 py-2 rounded hover:bg-gray-100 transition',
         activeClass: 'w-full px-3 py-2 rounded bg-blue-100 text-blue-700',
-        userAvatar: '/static/user.png',
-        botAvatar: '/static/bot.png',
         chat: [],
         input: '',
         loading: false,
         async sendMessage() {
           if (!this.input.trim()) return;
-          const text = this.input.trim();
-          const ts = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-          this.chat.push({ role:'user', text, timestamp:ts });
+          const text   = this.input.trim();
+          const tsUser = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+          this.chat.push({ role:'user', text, timestamp: tsUser });
           this.input = ''; this.loading = true;
           this.chat.push({ role:'bot', text:'', timestamp:'', typing:true });
           const form = new FormData(); form.append('mensagem', text);
           const res = await fetch('/api/chat',{method:'POST',body:form});
           const data = await res.json();
-          this.chat = this.chat.filter(m => !m.typing);
-          this.chat.push({ role:'bot', text:data.mensagem, timestamp:data.timestamp });
+          this.chat = this.chat.filter(m=>!m.typing);
+          const tsBot = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+          this.chat.push({ role:'bot', text: data.mensagem, timestamp: tsBot });
           this.loading = false;
-          this.$nextTick(() => {
-            const c = document.getElementById('chat-container'); c.scrollTop = c.scrollHeight;
-          });
+          this.$nextTick(()=>{ const c = document.getElementById('chat-container'); c.scrollTop = c.scrollHeight; });
         },
         tests: {
-          tdah: { current:0, answers:Array(6).fill(null), completed:false,
+          tdah: { current:0, answers: Array(15).fill(null), completed:false,
             questions: [
               {q:'Dificuldade para manter atenção em tarefas longas?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
               {q:'Inquietude ou agitação?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
               {q:'Interrompe os outros durante conversas?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
               {q:'Perde ou esquece objetos frequentemente?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
               {q:'Distrai-se com estímulos externos?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
-              {q:'Procrastina atividades importantes?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']}
-            ], get resultText() {
-              const s=this.answers.reduce((a,b)=>a+(b||0),0), m=this.questions.length*3;
-              return s/m*100>=50? 'Traços de TDAH indicados. Consulte um especialista.' : 'Poucos indícios de TDAH.';
-            }
-          },
-          autismo: { current:0, answers:Array(6).fill(null), completed:false,
+              {q:'Procrastina atividades importantes?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
+              {q:'Esquece compromissos ou datas importantes?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
+              {q:'Dificuldade em seguir instruções detalhadas?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
+              {q:'Evita tarefas que exigem esforço mental contínuo?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
+              {q:'Mexe as mãos ou pés quando sentado?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
+              {q:'Fala excessivamente?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
+              {q:'Dificuldade em esperar sua vez?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
+              {q:'Age impulsivamente sem pensar?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
+              {q:'Muda de atividade sem concluir?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
+              {q:'Sente-se frequentemente inquieto internamente?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']}
+            ], get resultText() { const s=this.answers.reduce((a,b)=>a+(b||0),0), m=this.questions.length*3; return s/m*100>=50? 'Traços de TDAH indicados. Consulte um especialista.' : 'Poucos indícios de TDAH.'; } },
+          autismo: { current:0, answers: Array(15).fill(null), completed:false,
             questions: [
               {q:'Evita contato visual com frequência?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
-              {q:'Dificuldade em entender expressões faciais?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
+              {q:'Dificuldade em interpretar expressões faciais?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
               {q:'Prefere rotinas rígidas?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
               {q:'Interesses intensos em tópicos específicos?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
-              {q:'Dificuldade em interpretar sarcasmo/ha humor?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
-              {q:'Desconforto em grandes grupos sociais?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']}
-            ], get resultText() {
-              const s=this.answers.reduce((a,b)=>a+(b||0),0), m=this.questions.length*3;
-              return s/m*100>=50? 'Traços de autismo indicando pesquisa profissional.' : 'Poucos indícios de autismo.';
-            }
-          }
+              {q:'Dificuldade em interpretar sarcasmo ou humor?',options:['Nunca','Às vezes','Frequentemente','Quase sempre']},
+              {q:'Desconforto em grandes grupos sociais?',options:['Nunca','Às vezes','Freqúentemente','Quase sempre']},
+              {q:'Sensibilidade aumentada a sons ou luzes?',options:['Nunca','Às vezes','Freqúentemente','Quase sempre']},
+              {q:'Dificuldade em iniciar ou manter conversas?',options:['Nunca','Às vezes','Freqúentemente','Quase sempre']},
+              {q:'Expressa emoções de forma atípica?',options:['Nunca','Às vezes','Freqúentemente','Quase sempre']},
+              {q:'Movimentos repetitivos (como balançar)?',options:['Nunca','Às vezes','Freqúentemente','Quase sempre']},
+              {q:'Interesses restritos e fixos?',options:['Nunca','Às vezes','Freqúentemente','Quase sempre']},
+              {q:'Dificuldade em fazer amigos?',options:['Nunca','Às vezes','Freqúentemente','Quase sempre']},
+              {q:'Resiste a mudanças na rotina?',options:['Nunca','Às vezes','Freqúentemente','Quase sempre']},
+              {q:'Fala em tom monótono?',options:['Nunca','Às vezes','Freqúentemente','Quase sempre']},
+              {q:'Prefere atividades solitárias?',options:['Nunca','Às vezes','Freqúentemente','Quase sempre']}]
+            , get resultText() { const s=this.answers.reduce((a,b)=>a+(b||0),0), m=this.questions.length*3; return s/m*100>=50? 'Traços do espectro autista indicados. Consulte um especialista.' : 'Poucos indícios de autismo.'; } }
         },
         setTab(tab) { this.activeTab = tab; },
-        next(test) {
-          const t = this.tests[test]; if (t.current < t.questions.length-1) t.current++; else t.completed = true;
-        }
+        next(test) { const t=this.tests[test]; if(t.current<t.questions.length-1) t.current++; else t.completed=true; }
       }));
     });
   </script>
