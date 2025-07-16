@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request, Form, Cookie
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from openai import OpenAI
@@ -16,15 +16,15 @@ app = FastAPI()
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# Gera nova sessão
+# Novo chat
 @app.get("/new")
 async def new_chat():
     session_id = str(uuid.uuid4())
     response = RedirectResponse("/")
-    response.set_cookie(key="session_id", value=session_id)
+    response.set_cookie("session_id", session_id)
     return response
 
-# Banco de dados
+# DB
 Base = declarative_base()
 engine = create_engine("sqlite:///db.sqlite3")
 SessionLocal = sessionmaker(bind=engine)
@@ -39,70 +39,55 @@ class LogMensagem(Base):
 
 Base.metadata.create_all(bind=engine)
 
+# Prompt
 PROMPT_BASE = """
-Você é um assistente virtual treinado para atuar como um psicólogo ou terapeuta de apoio emocional.
-Seu papel é acolher o usuário, escutar ativamente, validar sentimentos, fazer perguntas abertas para reflexão e sugerir técnicas de autocuidado, sempre de forma ética, cuidadosa e sem dar diagnósticos ou substituir profissionais de saúde.
-Nunca dê diagnósticos clínicos ou recomendações médicas específicas.
-Em caso de menção a crise grave (suicídio, autoagressão, violência), oriente a entrar em contato com profissionais de emergência ou CVV (188 no Brasil).
-Use linguagem simples e humana, evitando jargões técnicos.
-
+Você é um assistente virtual treinado para atuar como um psicólogo ...
 Mensagem do usuário:
 {mensagem}
-
-Responda agora, em até 4 frases:
+Responda em até 4 frases:
 """
 
-def detectar_crise(mensagem: str) -> bool:
-    palavras_criticas = ["suicídio", "me matar", "tirar a vida", "matar", "não aguento mais"]
-    return any(p in mensagem.lower() for p in palavras_criticas)
+def detectar_crise(m: str) -> bool:
+    crit = ["suicídio","me matar","tirar a vida","matar","não aguento mais"]
+    return any(p in m.lower() for p in crit)
 
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request, session_id: str = Cookie(default=None)):
+async def home(request: Request, session_id: str = Cookie(None)):
     if not session_id:
-        session_id = str(uuid.uuid4())
+        sid = str(uuid.uuid4())
         resp = RedirectResponse("/")
-        resp.set_cookie("session_id", session_id)
+        resp.set_cookie("session_id", sid)
         return resp
-
     db = SessionLocal()
-    historico = db.query(LogMensagem).filter_by(session_id=session_id).all()
+    hist = db.query(LogMensagem).filter_by(session_id=session_id).all()
     db.close()
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "historico": historico
-    })
+    return templates.TemplateResponse("index.html", {"request": request, "historico": hist})
 
-@app.post("/", response_class=HTMLResponse)
-async def conversar(request: Request, mensagem: str = Form(...), session_id: str = Cookie(...)):
+@app.post("/api/chat", response_class=JSONResponse)
+async def api_chat(mensagem: str = Form(...), session_id: str = Cookie(...)):
     db = SessionLocal()
-    agora = datetime.now().strftime("%H:%M")
-    db.add(LogMensagem(session_id=session_id, role="user", mensagem=mensagem, timestamp=agora))
+    ts_user = datetime.now().strftime("%H:%M")
+    db.add(LogMensagem(session_id=session_id, role="user", mensagem=mensagem, timestamp=ts_user))
     db.commit()
 
     if detectar_crise(mensagem):
-        resposta = (
-            "Percebo que você está em uma situação muito difícil. "
-            "Por favor, entre em contato com o CVV pelo telefone 188 ou procure ajuda médica imediatamente. "
-            "Você não está sozinho."
-        )
+        resposta = ("Percebo que você está em situação difícil. ..."
+                    "Procure ajuda médica ou CVV 188.")
     else:
-        prompt = PROMPT_BASE.format(mensagem=mensagem)
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        completion = client.chat.completions.create(
+        prompt = PROMPT_BASE.format(mensagem=mensagem)
+        res = client.chat.completions.create(
             model="gpt-4o",
-            messages=[{"role": "system", "content": prompt}]
+            messages=[{"role":"system","content":prompt}]
         )
-        resposta = completion.choices[0].message.content.strip()
+        resposta = res.choices[0].message.content.strip()
 
-    db.add(LogMensagem(session_id=session_id, role="bot", mensagem=resposta, timestamp=datetime.now().strftime("%H:%M")))
+    ts_bot = datetime.now().strftime("%H:%M")
+    db.add(LogMensagem(session_id=session_id, role="bot", mensagem=resposta, timestamp=ts_bot))
     db.commit()
-    historico = db.query(LogMensagem).filter_by(session_id=session_id).all()
     db.close()
 
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "historico": historico
-    })
+    return {"mensagem": resposta, "timestamp": ts_bot}
 
 if __name__ == "__main__":
     import uvicorn
